@@ -38,10 +38,9 @@ public class ExecuteRequest extends IntentService {
 	
 	
 	public ExecuteRequest() {
-		super("executeRest");
+		super("executeRestRequest");
 	}
 
-	
 	@Override
 	protected void onHandleIntent(Intent intent){
 		params = intent.getParcelableArrayListExtra("params");
@@ -52,42 +51,8 @@ public class ExecuteRequest extends IntentService {
 		try {
 			execute(method);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	private void commit(){
-		HttpClient client = new DefaultHttpClient();
-
-        HttpResponse httpResponse;
-
-        try {
-            httpResponse = client.execute(request);
-            responseCode = httpResponse.getStatusLine().getStatusCode();
-            message = httpResponse.getStatusLine().getReasonPhrase();
-
-            HttpEntity entity = httpResponse.getEntity();
-
-            if (entity != null) {
-
-                InputStream instream = entity.getContent();
-                String response = convertStreamToString(instream);
-                Bundle responseBundle = new Bundle();
-                responseBundle.putString("result", response);
-                receiver.send(method, responseBundle);
-                // Closing the input stream will trigger connection release
-                instream.close();
-                
-            }
-
-        } catch (ClientProtocolException e)  {
-            client.getConnectionManager().shutdown();
-            e.printStackTrace();
-        } catch (IOException e) {
-            client.getConnectionManager().shutdown();
-            e.printStackTrace();
-        }
 	}
 	
     public void execute(int method) throws Exception
@@ -141,6 +106,39 @@ public class ExecuteRequest extends IntentService {
             }
         }
     }
+    
+	private void commit(){
+		HttpClient client = new DefaultHttpClient();
+
+        HttpResponse httpResponse;
+
+        try {
+            httpResponse = client.execute(request);
+            responseCode = httpResponse.getStatusLine().getStatusCode();
+            message = httpResponse.getStatusLine().getReasonPhrase();
+
+            HttpEntity entity = httpResponse.getEntity();
+
+            if (entity != null) {
+
+                InputStream instream = entity.getContent();
+                String response = convertStreamToString(instream);
+                Bundle responseBundle = new Bundle();
+                responseBundle.putString("result", response);
+                receiver.send(method, responseBundle);
+                // Closing the input stream will trigger connection release
+                instream.close();
+                
+            }
+
+        } catch (ClientProtocolException e)  {
+            client.getConnectionManager().shutdown();
+            e.printStackTrace();
+        } catch (IOException e) {
+            client.getConnectionManager().shutdown();
+            e.printStackTrace();
+        }
+	}
 
 
 	private static String convertStreamToString(InputStream is) {

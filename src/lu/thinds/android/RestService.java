@@ -1,17 +1,6 @@
 package lu.thinds.android;
 
-import java.io.Serializable;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
 
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +8,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.os.ResultReceiver;
+
+
+/**
+ * This is an Android Service to provide REST functionality outside of the Application thread.
+ */
 
 public class RestService{
 	
@@ -33,6 +27,17 @@ public class RestService{
 	public final static int GET = 1;
 	public final static int POST = 2;
 	
+	/**
+	 * Class constructor. Requires a Handler (to receive a result), a Context (to launch the service), and
+	 * a Url (to specify where to make the request).
+	 * <p>
+	 * In this implementation, name is written as a simple string and value as a UTF-8 Url Encoded Value.
+	 *
+	 * @param	mHandler	The handler used to receive a response. Response is given to the msg object accessed in an Overridden handleMessage.
+	 * @param	mContext	The context used to execute the service. Suggested to use getApplicationContext() to prevent leaks.
+	 * @param	url			The url on which to execute the request.
+	 */
+	
 	public RestService(Handler mHandler, Context mContext, String url){
 		this.mHandler = mHandler;
 		this.mContext = mContext;
@@ -41,14 +46,39 @@ public class RestService{
 		headers = new ArrayList<ParcelableNameValuePair>();
 	}
 	
+	/**
+	 * Appends a parameter to the URL supplied by the constructor. 
+	 * <p>
+	 * In this implementation, name is written as a simple string and value as a UTF-8 Url Encoded Value.
+	 *
+	 * @param	name	The name associated with the name/value pair for the url argument
+	 * @param	value	The value associated with the name/value pair for the url argument
+	 */
+	
 	public void addParam(String name, String value){
 		params.add(new ParcelableNameValuePair(name, value));
 	}
+	
+	/**
+	 * Appends a header to the URL supplied by the constructor
+	 * <p>
+	 * @param	name	The name associated with the name/value pair for the url header
+	 * @param	value	The value associated with the name/value pair for the url header
+	 */
 	
 	public void addHeader(String name, String value){
 		headers.add(new ParcelableNameValuePair(name,value));
 	}
 	
+	/**
+	 * Executes the current URL as a REST request in an IntentService. The method argument 
+	 * specifies the HTTP Verb to use. Must use either RestService.GET or RestService.POST
+	 * <p>
+	 * The return string will be provided in the HandleMessage method of the handler provided by
+	 * the constructor. It will be present as the object field of the incoming message. 
+	 * <p>
+	 * @param	method	The type of HTTP request to make. Can be either RestService.GET or RestService.POST
+	 */
 	
 	public void execute(int method) {
 	     ResultReceiver receiver;
