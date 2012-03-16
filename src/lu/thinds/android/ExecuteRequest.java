@@ -15,6 +15,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
@@ -31,7 +32,7 @@ public class ExecuteRequest extends IntentService {
 	String message, response;
 	ArrayList <ParcelableNameValuePair> params;
 	ArrayList <ParcelableNameValuePair> headers;
-	HttpUriRequest request;
+	HttpRequestBase request;
 	ResultReceiver receiver;
 	
 	private String url;
@@ -90,7 +91,7 @@ public class ExecuteRequest extends IntentService {
             }
             case RestService.POST:
             {
-                HttpPost request = new HttpPost(url);
+                request = new HttpPost(url);
 
                 //add headers
                 for(NameValuePair h : headers)
@@ -99,7 +100,7 @@ public class ExecuteRequest extends IntentService {
                 }
 
                 if(!params.isEmpty()){
-                    request.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+                    ((HttpPost) request).setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
                 }
                 commit();
                 break;
