@@ -33,4 +33,18 @@
   android:scrollbars="vertical"
   android:maxLines="15"/>
   
+    <Button android:id="@+id/b_query3"
+  android:layout_width="fill_parent"
+  android:layout_height="0dip"
+  android:layout_weight=".1"
+  android:text="Query 1"/>
+  
+  <TextView android:id="@+id/t_query3"
+  android:layout_width="fill_parent"
+  android:layout_height="0dip"
+  android:layout_weight=".3"
+  android:text="Test To See if Post working"
+  android:scrollbars="vertical"
+  android:maxLines="15"/>
+  
 </LinearLayout>

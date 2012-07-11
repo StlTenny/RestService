@@ -23,9 +23,13 @@ public class RestService{
 	private String url;
 	private final Handler mHandler;
 	private Context mContext;
+	private int RequestType;
+	private String entity;
 	
 	public final static int GET = 1;
 	public final static int POST = 2;
+	public final static int PUT = 3;
+	public final static int DELETE = 4;
 	
 	/**
 	 * Class constructor. Requires a Handler (to receive a result), a Context (to launch the service), and
@@ -38,10 +42,11 @@ public class RestService{
 	 * @param	url			The url on which to execute the request.
 	 */
 	
-	public RestService(Handler mHandler, Context mContext, String url){
+	public RestService(Handler mHandler, Context mContext, String url,int RequestType){
 		this.mHandler = mHandler;
 		this.mContext = mContext;
 		this.url = url;
+		this.RequestType = RequestType;
 		params = new ArrayList<ParcelableNameValuePair>();
 		headers = new ArrayList<ParcelableNameValuePair>();
 	}
@@ -70,6 +75,16 @@ public class RestService{
 		headers.add(new ParcelableNameValuePair(name,value));
 	}
 	
+	
+	/**
+	 * Directly sets the HTTPEntity of a POST Request. WARNING! This will override all params set by the request.
+	 * <p>
+	 * @param	entity	The string used to be set as the entity of the request
+	 */
+	public void setEntity(String entity){
+		this.entity = entity;
+	}
+	
 	/**
 	 * Executes the current URL as a REST request in an IntentService. The method argument 
 	 * specifies the HTTP Verb to use. Must use either RestService.GET or RestService.POST
@@ -80,7 +95,9 @@ public class RestService{
 	 * @param	method	The type of HTTP request to make. Can be either RestService.GET or RestService.POST
 	 */
 	
-	public void execute(int method) {
+
+	
+	public void execute() {
 	     ResultReceiver receiver;
 	     receiver = new ResultReceiver(mHandler){
     	    @Override
@@ -93,7 +110,8 @@ public class RestService{
 	     intent.putExtra("params", params);
 	     intent.putExtra("url", url);
 	     intent.putExtra("receiver", receiver);
-	     intent.putExtra("method", method);
+	     intent.putExtra("method", RequestType);
+	     intent.putExtra("entity", entity);
 	     mContext.startService(intent);
 	}
 }

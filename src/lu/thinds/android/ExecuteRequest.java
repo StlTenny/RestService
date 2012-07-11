@@ -13,10 +13,12 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 
@@ -29,7 +31,7 @@ public class ExecuteRequest extends IntentService {
 	
 	int responseCode;
 	int method;
-	String message, response;
+	String message, response, entity;
 	ArrayList <ParcelableNameValuePair> params;
 	ArrayList <ParcelableNameValuePair> headers;
 	HttpRequestBase request;
@@ -49,11 +51,23 @@ public class ExecuteRequest extends IntentService {
 		url = intent.getStringExtra("url");
 		receiver = (ResultReceiver) intent.getParcelableExtra("receiver");
 		method = (int) intent.getIntExtra("method", 1);
+		entity = intent.getStringExtra("entity");
 		try {
 			execute(method);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+    public void executeDelete(String deletePath) throws Exception
+    {
+		    request = new HttpDelete(url + deletePath);
+		
+		    //add headers
+		    for(NameValuePair h : headers)
+		    {
+		        request.addHeader(h.getName(), h.getValue());
+		    }
+		    commit();
 	}
 	
     public void execute(int method) throws Exception
@@ -102,9 +116,41 @@ public class ExecuteRequest extends IntentService {
                 if(!params.isEmpty()){
                     ((HttpPost) request).setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
                 }
+                if (entity != null && entity != "") {
+        			StringEntity se = new StringEntity(entity);
+        			((HttpPost) request).setEntity(se);
+                }
                 commit();
                 break;
             }
+            case RestService.PUT:
+            {
+                request = new HttpPut(url);
+
+                //add headers
+                for(NameValuePair h : headers)
+                {
+                    request.addHeader(h.getName(), h.getValue());
+                }
+
+                if(!params.isEmpty()){
+                    ((HttpPut) request).setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+                }
+                commit();
+                break;
+            }
+            case RestService.DELETE:
+            {
+    		    request = new HttpDelete(url);
+    			
+    		    //add headers
+    		    for(NameValuePair h : headers)
+    		    {
+    		        request.addHeader(h.getName(), h.getValue());
+    		    }
+    		    commit();
+            }
+           
         }
     }
     
