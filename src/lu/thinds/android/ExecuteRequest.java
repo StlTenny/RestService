@@ -6,7 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.zip.GZIPInputStream;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -169,6 +171,15 @@ public class ExecuteRequest extends IntentService {
             if (entity != null) {
 
                 InputStream instream = entity.getContent();
+
+                // check if the response is gzipped
+                Header encoding = httpResponse
+                        .getFirstHeader("Content-Encoding");
+
+                if (encoding != null && encoding.getValue().equals("gzip")) {
+                    instream = new GZIPInputStream(instream);
+                }
+
                 String response = convertStreamToString(instream);
                 Bundle responseBundle = new Bundle();
                 responseBundle.putString("result", response);
